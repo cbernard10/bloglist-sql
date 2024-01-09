@@ -5,61 +5,47 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  //   dialectOptions: {
-  //     ssl: {
-  //       require: true,
-  //       rejectUnauthorized: false,
-  //     },
-  //   },
-});
+const sequelize = new Sequelize(process.env.DATABASE_URL);
 
-class Note extends Model {}
-Note.init(
-  {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    content: { type: DataTypes.TEXT, allowNull: false },
-    important: { type: DataTypes.BOOLEAN },
-    date: { type: DataTypes.DATE },
-  },
-  { sequelize, underscored: true, timestamps: false, modelName: "note" }
-);
-
-app.get("/api/notes", async (req, res) => {
-  const notes = await Note.findAll();
-  res.json(notes);
-});
-
-app.post("/api/notes", async (req, res) => {
+const main = async () => {
   try {
-    const note = await Note.create(req.body);
-    return res.json(note);
+    await sequelize.authenticate()
+    console.log('Connection has been established successfully.')
+    sequelize.close()
   } catch (error) {
-    return res.status(400).json({ error });
+    console.error('Unable to connect to the database:', error)
   }
-});
+}
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+main()
 
-// Postgres cluster fs-psql-lecture-db-cb10 created
-//   Username:    postgres
-//   Password:    1IpFq5HdRdYQ9mn
-//   Hostname:    fs-psql-lecture-db-cb10.internal
-//   Flycast:     fdaa:3:b3a7:0:1::2
-//   Proxy port:  5432
-//   Postgres port:  5433
-//   Connection string: postgres://postgres:1IpFq5HdRdYQ9mn@fs-psql-lecture-db-cb10.flycast:5432
+// class Note extends Model {}
+// Note.init(
+//   {
+//     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+//     content: { type: DataTypes.TEXT, allowNull: false },
+//     important: { type: DataTypes.BOOLEAN },
+//     date: { type: DataTypes.DATE },
+//   },
+//   { sequelize, underscored: true, timestamps: false, modelName: "note" }
+// );
 
-// Postgres cluster bloglist-sql-db-cb10 created
-//   Username:    postgres
-//   Password:    rSDTdBPEO011vAH
-//   Hostname:    bloglist-sql-db-cb10.internal
-//   Flycast:     fdaa:3:b3a7:0:1::3
-//   Proxy port:  5432
-//   Postgres port:  5433
-//   Connection string: postgres://postgres:rSDTdBPEO011vAH@bloglist-sql-db-cb10.flycast:5432
+// app.get("/api/blogs", async (req, res) => {
+//   const notes = await Note.findAll();
+//   res.json(notes);
+// });
 
-// DATABASE_URL=postgres://bloglist_sql_cb10:wSf9vaWWRv5c3JD@bloglist-sql-db-cb10.flycast:5432/bloglist_sql_cb10?sslmode=disable
+// app.post("/api/blogs", async (req, res) => {
+//   try {
+//     const note = await Note.create(req.body);
+//     return res.json(note);
+//   } catch (error) {
+//     return res.status(400).json({ error });
+//   }
+// });
+
+// const PORT = process.env.PORT || 3001;
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+
