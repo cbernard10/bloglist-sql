@@ -1,0 +1,10 @@
+POST http://localhost:3001/api/blogs
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QxQGV4YW1wbGUuY29tIiwiaWQiOjIsImlhdCI6MTcwNDg5OTI0M30.gAYrB0uB2wogai3ygu5MTR2-JBfV4nS19i8ftdpwvNk
+
+{
+    "author": "Jane Doe",
+    "title": "Session Test",
+    "url": "http://www.google.com",
+    "likes": 54
+}

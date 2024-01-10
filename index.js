@@ -1,51 +1,47 @@
-require("dotenv").config();
-const { Sequelize, Model, DataTypes } = require("sequelize");
 const express = require("express");
-
+require("express-async-errors");
 const app = express();
+
+const { PORT } = require("./util/config");
+const { connectToDatabase } = require("./util/db");
+
+const blogsRouter = require("./controllers/blogs");
+const usersRouter = require("./controllers/users");
+const loginRouter = require("./controllers/login");
+const authorsRouter = require("./controllers/authors");
+const readingListRouter = require("./controllers/readinglists");
+const logoutRouter = require("./controllers/logout");
+
 app.use(express.json());
 
-const sequelize = new Sequelize(process.env.DATABASE_URL);
+app.use("/api/blogs", blogsRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/authors", authorsRouter);
+app.use("/api/login", loginRouter);
+app.use("/api/readinglists", readingListRouter);
+app.use("/api/logout", logoutRouter);
 
-const main = async () => {
-  try {
-    await sequelize.authenticate()
-    console.log('Connection has been established successfully.')
-    sequelize.close()
-  } catch (error) {
-    console.error('Unable to connect to the database:', error)
+const errorHandler = (error, request, response, next) => {
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "SequelizeValidationError") {
+    return response.status(401).send({ error: error.errors[0].message });
   }
-}
+  else {
+    console.log(error.message);
+  }
+  next(error);
+};
 
-main()
+// this has to be the last loaded middleware.
+app.use(errorHandler);
 
-// class Note extends Model {}
-// Note.init(
-//   {
-//     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-//     content: { type: DataTypes.TEXT, allowNull: false },
-//     important: { type: DataTypes.BOOLEAN },
-//     date: { type: DataTypes.DATE },
-//   },
-//   { sequelize, underscored: true, timestamps: false, modelName: "note" }
-// );
+const start = async () => {
+  await connectToDatabase();
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
 
-// app.get("/api/blogs", async (req, res) => {
-//   const notes = await Note.findAll();
-//   res.json(notes);
-// });
-
-// app.post("/api/blogs", async (req, res) => {
-//   try {
-//     const note = await Note.create(req.body);
-//     return res.json(note);
-//   } catch (error) {
-//     return res.status(400).json({ error });
-//   }
-// });
-
-// const PORT = process.env.PORT || 3001;
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
-
+start();
